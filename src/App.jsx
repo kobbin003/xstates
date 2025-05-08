@@ -16,7 +16,10 @@ function App() {
 	useEffect(() => {
 		const countriesUrl =
 			"https://crio-location-selector.onrender.com/countries";
-		axios.get(countriesUrl).then(({ data }) => setCountries(data));
+		axios
+			.get(countriesUrl)
+			.then(({ data }) => setCountries(data))
+			.catch(() => setSelectedCountry(""));
 	}, []);
 
 	// fetch the states
@@ -29,7 +32,10 @@ function App() {
 			setCities([]);
 
 			const statesUrl = `https://crio-location-selector.onrender.com/country=${selectedCountry}/states`;
-			axios.get(statesUrl).then(({ data }) => setStates(data));
+			axios
+				.get(statesUrl)
+				.then(({ data }) => setStates(data))
+				.catch(() => setSelectedState(""));
 		}
 	}, [selectedCountry]);
 
@@ -41,7 +47,10 @@ function App() {
 			setCities([]);
 
 			const cityUrl = `https://crio-location-selector.onrender.com/country=${selectedCountry}/state=${selectedState}/cities`;
-			axios.get(cityUrl).then(({ data }) => setCities(data));
+			axios
+				.get(cityUrl)
+				.then(({ data }) => setCities(data))
+				.catch(() => setSelectedCity(""));
 		}
 	}, [selectedCountry, selectedState]);
 
@@ -67,7 +76,7 @@ function App() {
 			/>
 			{selectedCountry && selectedState && selectedCity ? (
 				<div>
-					You selected {selectedCountry}, {selectedState}, {selectedCity}
+					You selected {selectedCity}, {selectedState}, {selectedCountry}
 				</div>
 			) : (
 				<></>
