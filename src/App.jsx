@@ -1,35 +1,79 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import axios from "axios";
+import { useEffect, useState } from "react";
+import "./App.css";
+import SelectComponent from "./component/SelectComponent";
 
 function App() {
-  const [count, setCount] = useState(0)
+	const [countries, setCountries] = useState([]);
+	const [states, setStates] = useState([]);
+	const [cities, setCities] = useState([]);
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+	const [selectedCountry, setSelectedCountry] = useState("");
+	const [selectedState, setSelectedState] = useState("");
+	const [selectedCity, setSelectedCity] = useState("");
+
+	// fetch the countries
+	useEffect(() => {
+		const countriesUrl =
+			"https://crio-location-selector.onrender.com/countries";
+		axios.get(countriesUrl).then(({ data }) => setCountries(data));
+	}, []);
+
+	// fetch the states
+	useEffect(() => {
+		if (selectedCountry) {
+			// reset the selected state as well as the selected city on change of country
+			setSelectedState("");
+			setStates([]);
+			setSelectedCity("");
+			setCities([]);
+
+			const statesUrl = `https://crio-location-selector.onrender.com/country=${selectedCountry}/states`;
+			axios.get(statesUrl).then(({ data }) => setStates(data));
+		}
+	}, [selectedCountry]);
+
+	// fetch the cities
+	useEffect(() => {
+		if (selectedCountry && selectedState) {
+			// reset the selected city on change of state
+			setSelectedCity("");
+			setCities([]);
+
+			const cityUrl = `https://crio-location-selector.onrender.com/country=${selectedCountry}/state=${selectedState}/cities`;
+			axios.get(cityUrl).then(({ data }) => setCities(data));
+		}
+	}, [selectedCountry, selectedState]);
+
+	return (
+		<>
+			<SelectComponent
+				data={countries}
+				placeholder="Select Country"
+				selectedValue={selectedCountry}
+				setSelectedValue={setSelectedCountry}
+			/>
+			<SelectComponent
+				data={states}
+				placeholder="Select State"
+				selectedValue={selectedState}
+				setSelectedValue={setSelectedState}
+			/>
+			<SelectComponent
+				data={cities}
+				placeholder="Select City"
+				selectedValue={selectedCity}
+				setSelectedValue={setSelectedCity}
+			/>
+			{selectedCountry && selectedState && selectedCity ? (
+				<div>
+					You selected {selectedCountry}, {selectedState}, {selectedCity}
+				</div>
+			) : (
+				<></>
+			)}
+		</>
+	);
 }
 
-export default App
+export default App;
